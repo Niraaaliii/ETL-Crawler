@@ -71,32 +71,12 @@ To run the ETL process, execute the following command:
 python etl.py
 ```
 
-This will fetch job listings from the JSearch API and save them to a CSV file in the `data` directory.
+This will fetch job listings from the JSearch API and save them to a CSV file in the `data` directory. You can specify the number of pages to fetch by modifying the `etl.py` file.
+
+## Error Handling
+
+The project includes error handling mechanisms to catch potential exceptions during the ETL process. Errors are logged to a file and the console, providing detailed information about the cause of the failure.
 
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more information.
-
-## Updated Project Structure
-
-The project structure has been updated to the following:
-
-```
-ETL-Crawler/
-├── core/                   # Core logic directory
-│   ├── config.py           # Configuration settings
-│   ├── job_api_client.py   # JSearch API client
-│   └── utils.py            # Utility functions (logging, CSV handling)
-├── data/                   # Data storage directory
-├── etl.py                  # Main application entry point
-├── .env                    # Environment variables (not in repo)
-├── README.md               # Project documentation
-└── requirements.txt        # Project dependencies
-```
-
-The following files and folders have been removed:
-
-*   `src` directory
-*   `test_etl.py`
-*   `src/models` directory
-*   `test_data` directory
