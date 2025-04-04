@@ -1,9 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
-.Python
 build/
 develop-eggs/
 dist/
@@ -17,7 +15,6 @@ sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
 *.egg
 
 # Virtual Environment
@@ -36,8 +33,7 @@ ENV/
 data/
 logs/
 *.log
-*.xlsx
 
 # OS specific
 .DS_Store
-Thumbs.db 
+Thumbs.db
