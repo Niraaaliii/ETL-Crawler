@@ -14,9 +14,7 @@ def save_to_csv(raw_job_data: List[Dict], filename: str):
         output_dir = "data"
         os.makedirs(output_dir, exist_ok=True)
 
-        # Create DataFrame directly from the list of dictionaries
-        # Pandas will automatically create columns for all keys found in the dictionaries.
-        # Missing keys in some dictionaries will result in NaN values.
+        # Create DataFrame from job data
         df = pd.DataFrame(raw_job_data)
 
         # Define the full path for the CSV file
