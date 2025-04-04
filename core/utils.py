@@ -14,8 +14,31 @@ def save_to_csv(raw_job_data: List[Dict], filename: str):
         output_dir = "data"
         os.makedirs(output_dir, exist_ok=True)
 
-        # Create DataFrame from job data
-        df = pd.DataFrame(raw_job_data)
+        # Define the desired fields
+        desired_fields = [
+            "job_id",
+            "job_title",
+            "job_description",
+            "employer_name",
+            "job_apply_link",
+            "job_city",
+            "job_state",
+            "job_country",
+            "job_employment_type",
+            "job_is_remote",
+            "job_posted_at_timestamp",
+            "job_salary_period",
+            "job_highlights",
+        ]
+
+        # Extract only the desired fields from each job listing
+        filtered_job_data = []
+        for job in raw_job_data:
+            filtered_job = {field: job.get(field) for field in desired_fields}
+            filtered_job_data.append(filtered_job)
+
+        # Create DataFrame from filtered job data
+        df = pd.DataFrame(filtered_job_data)
 
         # Define the full path for the CSV file
         filepath = os.path.join(output_dir, f"{filename}.csv")
