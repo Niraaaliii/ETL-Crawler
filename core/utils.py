@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import List, Dict
-from src.utils.logger import logger
+import logging
 import os
 
 def save_to_csv(raw_job_data: List[Dict], filename: str):
@@ -28,3 +28,26 @@ def save_to_csv(raw_job_data: List[Dict], filename: str):
 
     except Exception as e:
         logger.error(f"Error saving to CSV: {e}")
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Set the minimum logging level
+
+# Create a file handler
+log_file = "logs/etl.log"
+os.makedirs(os.path.dirname(log_file), exist_ok=True)
+file_handler = logging.FileHandler(log_file)
+file_handler.setLevel(logging.DEBUG)  # Set the logging level for the file handler
+
+# Create a console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)  # Set the logging level for the console handler
+
+# Create a formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# Add the handlers to the logger
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
