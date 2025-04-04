@@ -1,4 +1,4 @@
-# ETL-Crawler
+# JobExtract-ETL-JsearchAPI
 
 A Python-based ETL (Extract, Transform, Load) system for fetching job listings from JSearch API, processing the data, and storing the results in a CSV file.
 
