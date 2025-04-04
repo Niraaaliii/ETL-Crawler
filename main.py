@@ -1,89 +1,57 @@
-#!/usr/bin/env python3
-"""
-ETL Job Crawler - Main entry point
-This script orchestrates the ETL process for job listings:
-1. Extract: Crawl job listings from various sources
-2. Transform: Process and clean the data
-3. Load: Update the Excel file with new job listings
-"""
+import os
+from dotenv import load_dotenv
+from datetime import datetime
 
 import os
-import time
-import schedule
-from datetime import datetime
-from src.crawlers.indeed_crawler import IndeedCrawler
-from src.crawlers.linkedin_crawler import LinkedInCrawler
-from src.processors.job_processor import JobProcessor
-from src.utils.excel_manager import ExcelManager
-from src.utils.logger import setup_logger
+from src.config import API_KEY, BASE_URL, SEARCH_KEYWORDS, SEARCH_LOCATION, DEFAULT_KEYWORDS, DEFAULT_LOCATIONS
+from src.extractors.job_api_client import JobApiClient
+# Removed transform_jobs import as it's no longer needed
+from src.utils.excel_manager import save_to_csv # Changed import
+from src.utils.logger import logger
 
-# Setup logging
-logger = setup_logger("main")
+os.environ["API_KEY"] = "8957d0c6e5msh7a908a3f48fbad3p10b7a6jsn422930cd37dc"
 
-def run_etl_process():
-    """Execute the full ETL process"""
-    start_time = time.time()
-    logger.info(f"Starting ETL process at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    # Initialize components
-    excel_manager = ExcelManager("data/jobs.xlsx")
-    job_processor = JobProcessor()
-    
-    # Initialize crawlers
-    crawlers = [
-        IndeedCrawler(),
-        LinkedInCrawler()
-    ]
-    
-    # Extract jobs from sources
-    all_jobs = []
-    for crawler in crawlers:
+class ETLOrchestrator:
+    def __init__(self):
+        self.api_client = JobApiClient(API_KEY, BASE_URL)
+        self.keywords = SEARCH_KEYWORDS.split(',') if SEARCH_KEYWORDS else DEFAULT_KEYWORDS
+        self.location = SEARCH_LOCATION.split(',') if SEARCH_LOCATION else DEFAULT_LOCATIONS
+
+    def run_etl(self, num_pages: int = 1):
+        """Orchestrates the ETL process."""
+        logger.info("Starting ETL process")
+
         try:
-            logger.info(f"Crawling jobs from {crawler.source_name}")
-            jobs = crawler.crawl()
-            logger.info(f"Found {len(jobs)} jobs from {crawler.source_name}")
-            all_jobs.extend(jobs)
-        except Exception as e:
-            logger.error(f"Error crawling {crawler.source_name}: {str(e)}")
-    
-    if not all_jobs:
-        logger.warning("No jobs found from any source")
-        return
-    
-    # Transform jobs
-    logger.info(f"Processing {len(all_jobs)} jobs")
-    processed_jobs = job_processor.process(all_jobs)
-    
-    # Load jobs to Excel
-    logger.info("Updating Excel file with new jobs")
-    excel_manager.update_jobs(processed_jobs)
-    
-    # Log completion
-    duration = time.time() - start_time
-    logger.info(f"ETL process completed in {duration:.2f} seconds")
-    logger.info(f"Total jobs processed: {len(processed_jobs)}")
+            # Restore original parameter logic
+            keywords_param = self.keywords
+            location_param = self.location
+            # logger.info(f"--- Running test with single keyword: '{keywords_param}', location: '{location_param}' ---") # Remove test log
 
-def schedule_job():
-    """Schedule the ETL process to run at regular intervals"""
-    # Run immediately on startup
-    run_etl_process()
-    
-    # Schedule to run daily at 9 AM
-    schedule.every().day.at("09:00").do(run_etl_process)
-    
-    logger.info("ETL process scheduled to run daily at 09:00")
-    
-    # Keep the script running
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
+            raw_jobs = self.api_client.fetch_jobs(keywords_param, location_param, pages_to_fetch=num_pages)
+            logger.info(f"Fetched {len(raw_jobs)} raw job listings")
+
+            # Skip transformation step
+            # job_listings = transform_jobs(raw_jobs)
+            # logger.info(f"Transformed {len(job_listings)} job listings")
+
+            if raw_jobs:
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                # Update filename for CSV
+                filename = f"job_listings_{self.keywords}_{self.location}_{timestamp}"
+                # Call the new save_to_csv function with raw_jobs
+                save_to_csv(raw_jobs, filename)
+            else:
+                logger.warning("No jobs fetched, skipping CSV save.")
+
+
+            logger.info("ETL process completed successfully")
+
+        except Exception as e:
+            logger.error(f"ETL process failed: {e}")
+
+def main():
+    orchestrator = ETLOrchestrator()
+    orchestrator.run_etl(num_pages=1)
 
 if __name__ == "__main__":
-    # Create data directory if it doesn't exist
-    os.makedirs("data", exist_ok=True)
-    
-    # Run as a scheduled job or one-time
-    if os.environ.get("SCHEDULE", "false").lower() == "true":
-        schedule_job()
-    else:
-        run_etl_process() 
+    main()

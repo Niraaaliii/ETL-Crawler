@@ -1,8 +1,4 @@
-requests==2.31.0
-beautifulsoup4==4.12.2
-pandas==2.1.0
-openpyxl==3.1.2
-python-dotenv==1.0.0
-schedule==1.2.1
-lxml==4.9.3
-tqdm==4.66.1 
+requests
+pandas
+openpyxl
+python-dotenv
