@@ -16,9 +16,7 @@ def save_to_csv(raw_job_data: List[Dict], filename: str):
 
         # Define the desired fields
         desired_fields = [
-            "job_id",
             "job_title",
-            "job_description",
             "employer_name",
             "job_apply_link",
             "job_city",
@@ -26,8 +24,6 @@ def save_to_csv(raw_job_data: List[Dict], filename: str):
             "job_country",
             "job_employment_type",
             "job_is_remote",
-            "job_posted_at_timestamp",
-            "job_salary_period",
             "job_highlights",
         ]
 
